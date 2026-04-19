@@ -1,6 +1,6 @@
 export interface User {
   id: number;
-  student_id: string;
+  username: string;
   email: string;
   first_name: string;
   last_name: string;
@@ -20,7 +20,7 @@ export interface LoginPayload {
 }
 
 export interface SignupPayload {
-  student_id: string;
+  username: string;
   email: string;
   first_name: string;
   last_name: string;

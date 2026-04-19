@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import api from "../api/client";
+import { API_BASE_URL, API_DEV_URL } from "../api/client";
 import { AuthContext } from "../context/AuthContext";
 
 import {
@@ -15,7 +16,7 @@ import {
 
 export default function Auth() {
   const { login } = useContext(AuthContext);
-
+  const params = new URLSearchParams();
   const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState<any>({});
   const [loading, setLoading] = useState(false);
@@ -24,11 +25,19 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      params.append("username", form.username);
+      params.append("password", form.password);
+
       if (isLogin) {
-        const res = await api.post("/auth/login", form);
-        login(res.data.access_token);
+        // const res = await api.post(`${API_DEV_URL}/auth/token`, params, {
+        //   headers: {
+        //     "Content-Type": "Application/x-www-form-urlencoded",
+        // },
+        // });
+        // login(res.data.access_token);
+        login(form);
       } else {
-        await api.post("/auth/signup", form);
+        await api.post(`${API_DEV_URL}/auth/signup`, form);
         setIsLogin(true);
       }
     } finally {
@@ -45,8 +54,8 @@ export default function Auth() {
       <Paper shadow="md" p="xl" radius="md">
         <Stack>
           <TextInput
-            label="Student ID"
-            onChange={(e) => setForm({ ...form, student_id: e.target.value })}
+            label="User ID"
+            onChange={(e) => setForm({ ...form, username: e.target.value })}
           />
           {!isLogin && (
             <>

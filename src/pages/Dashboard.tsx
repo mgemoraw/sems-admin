@@ -1,5 +1,5 @@
 import { useEffect, useState, useContext } from "react";
-import api from "../api/client";
+import api, { API_DEV_URL } from "../api/client";
 import { AuthContext } from "../context/AuthContext";
 
 import {
@@ -12,19 +12,20 @@ import {
   Title,
   Stack,
 } from "@mantine/core";
+import AppLayout from "../layouts/AppLayout";
 
 export default function Dashboard() {
-  const { logout } = useContext(AuthContext);
+  const { logout, user } = useContext(AuthContext);
 
-  const [user, setUser] = useState<any>(null);
+  // const [user, setUser] = useState<any>(null);
   const [questions, setQuestions] = useState<any[]>([]);
 
   useEffect(() => {
     const load = async () => {
-      const u = await api.get("/users/me");
-      const q = await api.get("/questions");
+      // const u = await api.get(`${API_DEV_URL}/auth/me`);
+      const q = await api.get(`${API_DEV_URL}/questions/1?year=2022`);
 
-      setUser(u.data);
+      // setUser(u.data);
       setQuestions(q.data);
     };
 
@@ -32,9 +33,11 @@ export default function Dashboard() {
   }, []);
 
   return (
+    <AppLayout>
+
     <Container size="lg" py="xl">
       <Group justify="space-between" mb="lg">
-        <Title order={2}>Student Dashboard</Title>
+        <Title order={2}>User Dashboard</Title>
 
         <Button color="red" onClick={logout}>
           Logout
@@ -45,11 +48,11 @@ export default function Dashboard() {
         <Card shadow="sm" padding="lg" radius="md" withBorder mb="lg">
           <Stack gap={5}>
             <Text fw={700} size="lg">
-              Welcome {user.first_name}
+              Welcome {user.username}
             </Text>
             <Text>{user.email}</Text>
             <Text size="sm" c="dimmed">
-              {user.program}
+              {user.role}
             </Text>
           </Stack>
         </Card>
@@ -63,16 +66,25 @@ export default function Dashboard() {
         {questions.map((q) => (
           <Grid.Col key={q.id} span={{ base: 12, md: 6 }}>
             <Card shadow="sm" padding="lg" radius="md" withBorder>
-              <Stack gap="xs">
-                <Text fw={600}>{q.title}</Text>
+              <Stack gap="xs" align="left">
                 <Text size="sm" c="dimmed">
-                  {q.body}
+                  {q.id}: {q.content}
                 </Text>
               </Stack>
+              
+              {JSON.parse(q.options).map((op) => (
+              <Group gap="xs" justify="start">
+                <Text fw={600} size="sm" c="dimmed">{op.label}. {op.content}</Text>
+                
+              </Group>
+              ))}
+              
             </Card>
           </Grid.Col>
         ))}
       </Grid>
     </Container>
+    </AppLayout>
+
   );
 }
