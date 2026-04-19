@@ -1,6 +1,6 @@
 import { ReactNode, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 import {
   AppShell,
@@ -13,6 +13,7 @@ import {
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { IconDashboard, IconMenu, IconQuestionMark } from "@tabler/icons-react";
+import { menuItems } from "../config/menu";
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useContext(AuthContext);
@@ -54,39 +55,44 @@ export default function AppLayout({ children }: { children: ReactNode }) {
 
       {/* ===== SIDEBAR ===== */}
       <AppShell.Navbar p="md">
-        <Stack>
+  <Stack gap="xs">
+    {menuItems
+      .filter((item) => item.roles.includes(user?.role))
+      .map((item) => {
+        const Icon = item.icon;
 
-          <Button variant="subtle" onClick={() => navigate("/")} leftSection={<IconMenu size={16} />}>
-            Dashboard
-          </Button>
-
-          {hasRole(["admin", "qa"]) && (
-            <Button 
-                variant="subtle"
-                 onClick={() => navigate("/questions")}
-                 leftSection={<IconQuestionMark size={16} />}
-            >
-              Questions
-            </Button>
-          )}
-
-          {hasRole(["admin"]) && (
-            <Button variant="subtle" onClick={() => navigate("/users")}>
-              Users
-            </Button>
-          )}
-
-          {hasRole(["dean", "apo", "admin"]) && (
-            <Button variant="subtle" onClick={() => navigate("/reports")}>
-              Reports
-            </Button>
-          )}
-
-        </Stack>
-      </AppShell.Navbar>
-
+        return (
+          <NavLink
+            key={item.path}
+            to={item.path}
+            style={{ textDecoration: "none" }}
+          >
+            {({ isActive }) => (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  padding: "10px",
+                  borderRadius: "6px",
+                  background: isActive ? "#eef2ff" : "transparent",
+                  cursor: "pointer",
+                }}
+              >
+                <Icon size={18} />
+                <span>{item.label}</span>
+              </div>
+            )}
+          </NavLink>
+        );
+      })}
+  </Stack>
+</AppShell.Navbar>
+      
+{/* 
       {/* ===== MAIN CONTENT ===== */}
       <AppShell.Main>{children}</AppShell.Main>
     </AppShell>
   );
 }
+
