@@ -1,8 +1,5 @@
-import { useState, useContext } from "react";
-import api from "../api/client";
-import { API_BASE_URL, API_DEV_URL } from "../api/client";
-import { AuthContext } from "../context/AuthContext";
-
+import { useState, useContext, FormEvent } from "react";
+import { notifications } from "@mantine/notifications";
 import {
   TextInput,
   PasswordInput,
@@ -11,98 +8,184 @@ import {
   Title,
   Container,
   Stack,
-  Text,
+  Anchor,
+  Box,
 } from "@mantine/core";
 
+import api, { API_BASE_URL, API_DEV_URL } from "../api/client";
+import { AuthContext } from "../context/AuthContext";
+
+// Define strong types for form states
+interface AuthFormState {
+  username?: string;
+  password?: string;
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  program?: string;
+}
+
+const INITIAL_FORM_STATE: AuthFormState = {
+  username: "",
+  password: "",
+  email: "",
+  first_name: "",
+  last_name: "",
+  program: "",
+};
+
 export default function Auth() {
-  const { login } = useContext(AuthContext);
-  const params = new URLSearchParams();
+  const auth = useContext(AuthContext);
+  
+  if (!auth) {
+    throw new Error("Auth component must be used within an AuthProvider");
+  }
+
+  const { login } = auth;
+
   const [isLogin, setIsLogin] = useState(true);
-  const [form, setForm] = useState<any>({});
+  const [form, setForm] = useState<AuthFormState>(INITIAL_FORM_STATE);
   const [loading, setLoading] = useState(false);
 
-  const submit = async () => {
+  // Safely switch form modes and scrub previous input data
+  const handleModeToggle = () => {
+    setIsLogin((prev) => !prev);
+    setForm(INITIAL_FORM_STATE);
+  };
+
+  const handleInputChange = (field: keyof AuthFormState, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault(); // Prevent native browser page reloads
+
+    // Simple production validation guard
+    if (!form.username || !form.password) {
+      notifications.show({
+        title: "Validation Error",
+        message: "User ID and Password are required.",
+        color: "yellow",
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
-      params.append("username", form.username);
-      params.append("password", form.password);
-
       if (isLogin) {
-        // const res = await api.post(`${API_DEV_URL}/auth/token`, params, {
-        //   headers: {
-        //     "Content-Type": "Application/x-www-form-urlencoded",
-        // },
-        // });
-        // login(res.data.access_token);
-        login(form);
+        // Safe execution of custom login flow
+        const resp = await login({ username: form.username, password: form.password });
+        if (resp) {
+          notifications.show({
+            title: "Login Successful",
+            message: "Welcome back!",
+            color: "green",
+          });
+        }
       } else {
-        await api.post(`${API_DEV_URL}/auth/signup`, form);
+        await api.post(`${API_BASE_URL}/auth/signup`, form);
+
+        notifications.show({
+          title: "Account Created",
+          message: "Your registration was successful. You can now sign in.",
+          color: "green",
+        });
+        
         setIsLogin(true);
+        setForm(INITIAL_FORM_STATE);
       }
+    } catch (error: any) {
+      notifications.show({
+        title: "Authentication Failed",
+        message: error?.response?.data?.detail || "Username / password incorrect. Please try again.",
+        color: "red",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Container size={420} my={80}>
-      <Title ta="center" mb="lg">
+    <Container size={460} my={80}>
+      <Title ta="center" mb="lg" order={2}>
         {isLogin ? "Welcome! Login to Continue" : "Create New Account"}
       </Title>
 
-      <Paper shadow="md" p="xl" radius="md">
-        <Stack>
+      {/* HTML <form> element allows users to submit the form using the 'Enter' key */}
+      <Paper component="form" onSubmit={handleSubmit} shadow="md" p="xl" radius="md" withBorder>
+        <Stack gap="md">
           <TextInput
             label="User ID"
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
+            placeholder="Enter your user ID"
+            required
+            value={form.username}
+            onChange={(e) => handleInputChange("username", e.target.value)}
           />
+
           {!isLogin && (
             <>
               <TextInput
                 label="Email"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
+                type="email"
+                placeholder="name@example.com"
+                required
+                value={form.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
               />
 
               <TextInput
                 label="First Name"
-                onChange={(e) =>
-                  setForm({ ...form, first_name: e.target.value })
-                }
+                placeholder="John"
+                required
+                value={form.first_name}
+                onChange={(e) => handleInputChange("first_name", e.target.value)}
               />
 
               <TextInput
                 label="Last Name"
-                onChange={(e) =>
-                  setForm({ ...form, last_name: e.target.value })
-                }
+                placeholder="Doe"
+                required
+                value={form.last_name}
+                onChange={(e) => handleInputChange("last_name", e.target.value)}
               />
 
               <TextInput
                 label="Program"
-                onChange={(e) => setForm({ ...form, program: e.target.value })}
+                placeholder="Engineering, Business, etc."
+                value={form.program}
+                onChange={(e) => handleInputChange("program", e.target.value)}
               />
             </>
           )}
 
           <PasswordInput
             label="Password"
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder="Enter your password"
+            required
+            value={form.password}
+            onChange={(e) => handleInputChange("password", e.target.value)}
           />
 
-          <Button loading={loading} onClick={submit} fullWidth>
+          <Button 
+            type="submit"
+            loading={loading} 
+            fullWidth 
+            mt="md"
+          >
             {isLogin ? "Login" : "Sign Up"}
           </Button>
 
-          <Text
-            ta="center"
-            size="sm"
-            c="blue"
-            style={{ cursor: "pointer" }}
-            onClick={() => setIsLogin(!isLogin)}
-          >
-            {isLogin ? "Create new account" : "Already have an account?"}
-          </Text>
+          <Box ta="center" mt="xs">
+            <Anchor
+              component="button"
+              type="button"
+              size="sm"
+              onClick={handleModeToggle}
+            >
+              {isLogin ? "Create new account" : "Already have an account?"}
+            </Anchor>
+          </Box>
         </Stack>
       </Paper>
     </Container>

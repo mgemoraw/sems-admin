@@ -15,11 +15,20 @@ import "./App.css";
 // )
 
 import { MantineProvider } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+
 import "@mantine/core/styles.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <MantineProvider defaultColorScheme="light">
+      <Notifications   styles={{
+        notification: {
+          maxWidth: 350,
+          width: "350px",
+          position:'absolute',
+        }
+      }} />
       <AuthProvider>
         <App />
       </AuthProvider>

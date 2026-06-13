@@ -10,7 +10,7 @@ export default defineConfig({
   ],
 
   server: {
-    port: 3000,
+    port: 4000,
     strictPort: true, // Options: ails if 3000 is busy inttead of switching
     host: true // Optional: allows access via local network (useful for mobile testing)
   }

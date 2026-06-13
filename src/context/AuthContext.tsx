@@ -64,20 +64,23 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
       data.append("username", form.username);
       data.append("password", form.password);
 
-      await api.post("/auth/login", form, {
+      console.log("LOGIN FUNCTION CALLED");
+      const resp = await api.post("/auth/users/login", form, {
         headers: {
-          // "Content-Type": "application/x-www-form-urlencoded",
-          "Content-Type": "application/json",
+          "Content-Type": "application/x-www-form-urlencoded",
+          // "Content-Type": "application/json",
           Accept: "application/json",
         },
       });
+      console.log(resp.data);
 
       // cookie is set by backend → now fetch user
       await fetchUser();
 
       return true;
     } catch (error) {
-      return false;
+      throw error;
+
     }
   };
 

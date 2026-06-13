@@ -1,0 +1,45 @@
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-sm);
+  border-radius: var(--mantine-radius-sm);
+  width: 100%;
+  color: var(--mantine-color-text);
+  text-decoration: none;
+  transition: background-color 150ms ease, color 150ms ease;
+
+  /* Hover state for normal links */
+  &:hover {
+    background-color: var(--mantine-color-gray-0);
+  }
+
+  /* Active Link Styles (Light Mode default) */
+  &[data-active] {
+    background-color: var(--mantine-color-indigo-light);
+    color: var(--mantine-color-indigo-light-color);
+    font-weight: 600;
+
+    &:hover {
+      background-color: var(--mantine-color-indigo-light-hover);
+    }
+  }
+}
+
+/* Dark Mode Overrides (Automatic if using Mantine's Color Scheme Provider) */
+:global([data-mantine-color-scheme='dark']) {
+  .navLink {
+    &:hover {
+      background-color: var(--mantine-color-dark-6);
+    }
+
+    &[data-active] {
+      background-color: rgba(var(--mantine-color-indigo-8-rgb), 0.15);
+      color: var(--mantine-color-indigo-4);
+
+      &:hover {
+        background-color: rgba(var(--mantine-color-indigo-8-rgb), 0.25);
+      }
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { ReactNode, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, Outlet, useNavigate } from "react-router-dom";
 
 import {
   AppShell,
@@ -34,9 +34,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
         collapsed: { mobile: !opened },
       }}
       padding="md"
+      styles={{
+        header: {
+          borderBottom: 'none',
+        },
+        navbar: {
+          borderRight: "none",
+        }
+      }}
     >
       {/* ===== HEADER ===== */}
-      <AppShell.Header>
+      <AppShell.Header style={{borderBottom: 'none'}}>
         <Group justify="space-between" px="md" style={{ height: "100%" }}>
           <Group>
             <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
@@ -91,7 +99,9 @@ export default function AppLayout({ children }: { children: ReactNode }) {
       
 {/* 
       {/* ===== MAIN CONTENT ===== */}
-      <AppShell.Main>{children}</AppShell.Main>
+      <AppShell.Main>
+        {children}
+      </AppShell.Main>
     </AppShell>
   );
 }

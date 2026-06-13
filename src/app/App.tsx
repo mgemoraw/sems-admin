@@ -1,60 +1,113 @@
 import { useContext } from "react";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 import { AuthContext } from "../context/AuthContext";
-import Auth from "../pages/Auth";
+
 import Dashboard from "../pages/Dashboard";
 import AdminDashboard from "../pages/AdminDashboard";
-import ProtectedRoute from "../routes/ProtectedRoute";
 
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../router/ProtectedRoute";
+import RoleRoute from "../router/RoleRoute";
 
-import RoleRoute from "../routes/RoleRoute";
 import FullScreenLoader from "../components/FullScreenLoader";
 
-export default function App() {
-  const { user, loading } = useContext(AuthContext);
+import AuthLayout from "../pages/auth/AuthLayout";
+import LoginPage from "../pages/auth/LoginPage";
+import RegisterPage from "../pages/auth/RegisterPage";
+import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
 
-  if (loading) return <FullScreenLoader/>;
+export default function App() {
+  const { user, loading } =
+    useContext(AuthContext);
+
+  if (loading) {
+    return <FullScreenLoader />;
+  }
 
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* PUBLIC ROUTE */}
-        <Route
-          path="/login"
-          element={!user ? <Auth /> : <Navigate to="/" />}
-        />
+        {/* AUTH ROUTES */}
+        <Route element={<AuthLayout />}>
 
-        {/* PROTECTED DASHBOARD */}
+          <Route
+            path="/login"
+            element={
+              !user ? (
+                <LoginPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route
+            path="/register"
+            element={
+              !user ? (
+                <RegisterPage />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+
+          <Route
+            path="/forgot-password"
+            element={
+              <ForgotPasswordPage />
+            }
+          />
+
+          <Route
+            path="/reset-password/:token"
+            element={
+              <ResetPasswordPage />
+            }
+          />
+        </Route>
+
+        {/* USER DASHBOARD */}
         <Route
           path="/"
           element={
             <ProtectedRoute>
-              <AdminDashboard />
+              <Dashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* EXAMPLE RBAC ROUTE (ADMIN ONLY) */}
+        {/* ADMIN DASHBOARD */}
         <Route
           path="/admin"
           element={
             <RoleRoute roles={["admin"]}>
-              <div>Admin Panel</div>
+              <AdminDashboard />
             </RoleRoute>
           }
         />
 
-        {/* fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
-
+        {/* FALLBACK */}
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to={
+                user
+                  ? "/"
+                  : "/login"
+              }
+            />
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
-
-// export default function App() {
-//   const { user } = useContext(AuthContext);
-
-//   return user ? <Dashboard /> : <Auth />;
-// }

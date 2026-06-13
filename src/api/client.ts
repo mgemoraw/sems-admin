@@ -10,8 +10,8 @@ const WEBSOCKET_DEV_URL =
   import.meta.env.VITE_WEBSOCKET_DEV_URL || "ws://localhost:8000/cable";
 
 const api = axios.create({
-  // baseURL: API_BASE_URL,
-  baseURL: API_DEV_URL,
+  baseURL: API_BASE_URL,
+  // baseURL: API_DEV_URL,
   withCredentials: true,
 });
 
