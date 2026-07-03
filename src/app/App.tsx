@@ -13,14 +13,18 @@ import AdminDashboard from "../pages/AdminDashboard";
 
 import ProtectedRoute from "../router/ProtectedRoute";
 import RoleRoute from "../router/RoleRoute";
+import HomeRouter from "../router/HomeRouter";
 
 import FullScreenLoader from "../components/FullScreenLoader";
 
 import AuthLayout from "../pages/auth/AuthLayout";
 import LoginPage from "../pages/auth/LoginPage";
+import HomePage from "../pages/home/HomePage";
 import RegisterPage from "../pages/auth/RegisterPage";
 import ForgotPasswordPage from "../pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "../pages/auth/ResetPasswordPage";
+import DashboardLayout from "../layouts/DashboardLayout";
+import AppLayout from "../layouts/AppLayout";
 
 export default function App() {
   const { user, loading } =
@@ -33,20 +37,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-
+        {/* public routes */}
+        <Route path="/" element={<HomeRouter />} />
         {/* AUTH ROUTES */}
         <Route element={<AuthLayout />}>
-
-          <Route
-            path="/login"
-            element={
-              !user ? (
-                <LoginPage />
-              ) : (
-                <Navigate to="/" />
-              )
-            }
-          />
+          <Route path="/login" element={!user ? (<LoginPage />) : (<Navigate to="/" replace />)}/>
 
           <Route
             path="/register"
@@ -54,7 +49,7 @@ export default function App() {
               !user ? (
                 <RegisterPage />
               ) : (
-                <Navigate to="/" />
+                <Navigate to="/" replace />
               )
             }
           />
@@ -75,14 +70,14 @@ export default function App() {
         </Route>
 
         {/* USER DASHBOARD */}
-        <Route
+        {/* <Route
           path="/"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
           }
-        />
+        /> */}
 
         {/* ADMIN DASHBOARD */}
         <Route
@@ -104,6 +99,7 @@ export default function App() {
                   ? "/"
                   : "/login"
               }
+              replace
             />
           }
         />

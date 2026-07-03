@@ -83,7 +83,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                   gap: "10px",
                   padding: "10px",
                   borderRadius: "6px",
-                  background: isActive ? "#eef2ff" : "transparent",
+                  background: isActive ? "var(--mantine-color-blue-light)" : "transparent",
+                  color: isActive ? "var(--mantine-color-blue-light-color)" : "inherit",
                   cursor: "pointer",
                 }}
               >

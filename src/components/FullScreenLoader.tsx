@@ -1,7 +1,7 @@
 import { Center, Stack, Loader, Text, Paper } from "@mantine/core";
 
 export default function FullScreenLoader({
-  message = "Loading your dashboard...",
+  message = "Loading...",
 }: {
   message?: string;
 }) {
